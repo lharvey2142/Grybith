@@ -232,7 +232,6 @@ def rescue_endstage():
         player.equip_weapon(chainsword)
         player.location = merchantroom
         merchantroom.allies.remove(desperate_merchant)
-        rescue.stage = 5
     else:
         player.location.enemies = []
         player.location.enemies.append(desperate_merchant)
@@ -240,7 +239,6 @@ def rescue_endstage():
             AIcombat(enemy, player)
             time.sleep(1.5)
         merchantroom.allies.remove(desperate_merchant)
-        rescue.stage = 5
 
 
 def check_quests():
@@ -259,6 +257,7 @@ def check_quests():
         rescue.stage = 4
     if rescue.stage == 4:
         rescue_endstage()
+        rescue.stage = 5
 
 
 
