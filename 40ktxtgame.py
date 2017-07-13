@@ -208,7 +208,6 @@ rescue = Quest()
 
 
 def conversation(tree):
-    print(tree.primary)
     tree.responsed()
     #while tree.nextnode != Null:
     tree.nextnode_M().responsed()
@@ -768,7 +767,9 @@ def interpreter(character, command):
 
 
 
-
+    elif set_listofwordsincommand.intersection({'door'}):
+        print("You don't need to open doors, unless specified they will be openable. To move throughout the world, type a command containing the cardinal direction you want to move.")
+        interpreter(player, listener())
     elif set_listofwordsincommand.intersection({'sneak', 'slip', 'around'}):
         print('You are caught!')
         for enemy in character.location.enemies:
@@ -812,6 +813,7 @@ def interpreter(character, command):
 
     else:
         print('Invalid Command')
+        interpreter(player, listener())
 
 
 def listener():
@@ -835,12 +837,12 @@ player = Actor(name='you', weapon=fists, armour=clothes, rangetotarget=1)
 
 
 startRoom = Room('Start', desc='a small grimy room with a door on the north wall', items=[rusty_auto_gun, old_flak_jacket, medpack, axe], ammo=[autogunammocase])
-secondRoom = Room('hallway1', desc='a long dark hallway running past the door of the room to the east and west. There are other doors lining the hall, but they are locked, bared, or otherwise impassable', enemies=[gretchin, big_gretchin], South=startRoom)
+secondRoom = Room('hallway1', desc='a long dark hallway running past the door of the room to the east and west. There are other doors lining the hall, but they are locked, barred, or otherwise impassable', enemies=[gretchin, big_gretchin], South=startRoom)
 lookout = Room('lookout', desc='a room with a smashed row of windows lining one wall. Outside you can see Grybith hive, from your position partway up the spire you can see the damaged city spread out towards the horizon. In the distance you can see the ruins of the massive walls that once surrounded Grybith.', items=[medpack], East=secondRoom)
 anteroom = Room('anteroom', desc='a small anteroom. To the north a door is ajar; light and voices spill from the other side.', West=secondRoom)
 merchantroom = Room('merchantroom', desc='a large rectangular room with high ceilings. A second story gallery once stretched along several of the walls, but it has collapsed. The rubble has been pushed into the corners to make room for several stalls. There are exits in every direction.', allies=[man, man, man, woman, merchant, desperate_merchant], South=anteroom)
-ramproom = Room('ramproom', desc=' a room with a long ramp sloping downwards into the dark, there is a door at the end of it.', East=merchantroom)
-bloodyroom = Room('bloodyroom', desc='a room with long blood stains down the sides of the walls, almost as if the ceiling was bleeding.', items=[medpack, knife])
+ramproom = Room('ramproom', desc=' a room with a long ramp sloping down and to the west into the dark, there is a door at the end of it.', East=merchantroom)
+bloodyroom = Room('bloodyroom', desc='a room with long blood stains down the sides of the walls, almost as if the ceiling was bleeding. There is a an archway to the south covered in a black cloth', items=[medpack, knife])
 sacrifcialchamber = Room('sacrifcialchamber', desc='a large circular room with a pedestal in the middle. There is a door on the eastern wall', enemies=[heretic])
 Hereticstorage = Room('Hereticstorage', desc='a small room with a few boxes. You poke around but find nothing interesting.', West=sacrifcialchamber)
 
@@ -900,6 +902,7 @@ def main_Control_Loop():
     print('Strength increases your damage with melee weapons.')
     print('Dexterity increases your damage with ranged weapons.')
     print('Health increases your maximum health')
+    print('Select starting stats:')
     level_up(player)
     level_up(player)
     print('You are in ' + startRoom.desc)
