@@ -220,7 +220,7 @@ def rescue_stage1part1():
     print('A crazed looking merchant suddenly lurches up beside you and grabs your arm.')
     conversation(RescueTree1)
     if RescueTree2.getresponse() == 1:
-        print(""" "The merchant almost drags you across the room to a door on the west side. He opens it and then jumps to the side. "I saw them go do there." A ramp slopes away into the dark, at the end you can spot a door. """)
+        print(""" "The merchant almost drags you across the room to a door on the west side. He opens it and then jumps to the side. "I saw them go do there." A ramp slopes downn and west into the dark, at the end you can spot a door. """)
         player.location = ramproom
     rescue.stage = 1
 
@@ -230,7 +230,8 @@ def rescue_endstage():
         time.sleep(1.5)
         print('The merchant takes you back to the main hall, he ducks behind one of the stalls and then rises up holding a sword of dull grey metal, with wicked looking teath running down one side of the blade.')
         time.sleep(1.5)
-        player.equip_weapon(chainsword)
+        player.equipment.append(chainsword)
+        print('You take the chainsword')
         player.location = merchantroom
         merchantroom.allies.remove(desperate_merchant)
     else:
