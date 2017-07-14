@@ -163,6 +163,8 @@ chainsword = Weapon('chainsword', 65, 0)
 
 
 
+
+
 class DialogNode():
     def __init__(self, primary=None, playerresponse=None, children=None, nextnode=None):
         self.primary = primary
@@ -748,7 +750,7 @@ def interpreter(character, command):
         if (character.location.items == None and character.location.ammo == None):
             print('Nothing found')
         x = 0
-        while character.location.items != []:
+        while character.location.items != [] and character.location.items != None:
 
             for item in character.location.items:
                 if item.name in weaponsDict.keys():
@@ -902,10 +904,12 @@ def main_Control_Loop():
     print('Strength increases your damage with melee weapons.')
     print('Dexterity increases your damage with ranged weapons.')
     print('Health increases your maximum health')
-    print('Select starting stats:')
+    print('Select starting stats: 1/2')
     level_up(player)
+    print('Select starting stats: 2/2')
     level_up(player)
     print('You are in ' + startRoom.desc)
+    print('Type help for help')
     while playing:
         check_quests()
         interpreter(player, listener())
@@ -919,7 +923,6 @@ def main_Control_Loop():
 if __name__ == '__main__':
     print('Welcome')
     print('Hint: remember to search rooms for items before you leave')
-    print('Type help for help')
     #print("Enter your character's name")
     #playername = sys.stdin.readline().strip()
     #player.name = playername
