@@ -1,12 +1,16 @@
 import sys
 import random
 import time
+#import tkinter as tk
 from itertools import groupby
 
 
 
 #This has to be a list because it must be a mutable variable
 autogunammo = [0]
+lasgunammo = [0]
+bolterammo = [0]
+
 
 weaponsDict = {}
 armoursDict = {}
@@ -73,15 +77,15 @@ def myhelp():
     charge. However, they don't use any ammunition
 
     You can always retreat from a fight by going back the way you came. Though, you won't be able to proceed through a room
-    until you have neutralized all the enemies within it."""
-)
+    until you have neutralized all the enemies within it.""")
+
+def printdelay(seconds=1.5):
+    time.sleep(seconds)
+
+adjectives = ['old', 'rusty', 'damaged', 'battered']
 
 
-
-adjectives = ['old', 'rusty', 'damaged']
-
-
-attackverblist = ['shoot', 'hit', 'kill', 'destroy', 'blast', 'attack', 'smash', 'engage', 'conquer', 'wack', 'smite', 'smack', 'slash']
+attackverblist = ['shoot', 'hit', 'kill', 'destroy', 'blast', 'attack', 'smash', 'engage', 'conquer', 'wack', 'smite', 'smack', 'slash', 'fight']
 
 
 playing = True
@@ -97,6 +101,28 @@ class AutogunAmmo():
         autogunammo[0]+=v.amount
         print('You now have ' + str(autogunammo[0]) + ' rounds of autogun ammunition')
 
+class Lasgunammo():
+    def __init__(self, name, amount):
+        self.name = name
+        self.amount = amount
+
+    def take(self):
+        global lasgunammo
+        v = ammoDict[self.name]
+        lasgunammo[0]+=v.amount
+        print('You now have ' + str(lasgunammo[0]) + ' las shots')
+
+class Bolterammo():
+    def __init__(self, name, amount):
+        self.name = name
+        self.amount = amount
+
+    def take(self):
+        global bolterammo
+        v = ammoDict[self.name]
+        bolterammo[0]+=v.amount
+        print('You now have ' + str(bolterammo[0]) + ' bolter shells')
+
 
 
 class Health():
@@ -105,18 +131,12 @@ class Health():
         self.healing = healing
         healthitemsDict.update({self.name: self})
 
-
     def use(self, character):
         global maxhealth
         temp = character.health + self.healing
         if character == player:
-
-            if temp > maxhealth:
-                character.health = maxhealth
-                print('You now have ' + str(character.health) + ' health.')
-            else:
-                character.health = temp
-                print('You now have ' + str(character.health) + ' health.')
+            character.health = maxhealth if temp > maxhealth else temp
+            print('You now have ' + str(character.health) + ' health.')
             character.equipment.remove(self)
         else:
             character.health = temp
@@ -143,21 +163,25 @@ class Armour():
         self.damageresist = damageresist
         armoursDict.update({self.name: self})
 
-
+lasgunammocase = Lasgunammo('several lasgun packs', 30)
 autogunammocase = AutogunAmmo('a case of autogun ammunition', 50)
+bolterammocase = Bolterammo('a container of bolter shells', 25)
+
 fists = Weapon('fists', 1, 0)
 clothes = Armour('clothes', 0)
-rusty_auto_gun = Weapon('rusty autogun', 45, 1, 'autogun')
+rusty_auto_gun = Weapon('rusty autogun', 40, 1, 'autogun')
 old_flak_jacket = Armour('old flak jacket',10)
 rusty_bolter = Weapon('rusty bolter', 100, 1, 'bolter')
 knife = Weapon('knife', 20, 0)
 axe = Weapon('axe', 30, 0)
 battered_autopistol = Weapon('battered autopistol', 20, 1, 'autogun')
-plasma_pistol = Weapon('plasma pistol', 300, 1, 'plasma')
+plasma_pistol = Weapon('plasma pistol', 120, 1, 'plasma')
 Adepta_Sororitas_power_armour = Armour('Adepta Sororitas power armour', 100)
 medpack = Health('medpack', 40)
 rusty_metal_armour = Armour('Rusty metal armour', 15)
 chainsword = Weapon('chainsword', 65, 0)
+bolt_pistol = Weapon('bolt pistol', 75, 1, 'bolter')
+battered_lasgun = Weapon('battered lasgun', 50, 1, 'lasgun')
 
 
 
@@ -175,15 +199,15 @@ class DialogNode():
         if self.primary != None:
             print(self.primary)
         [print(response) for response in self.playerresponse]
-        time.sleep(1.5)
+        printdelay()
         self.response = listener()
         #This will cause a crash if something has less than 4 options and too high a number is input.
         if self.response in ['1', '2', '3', '4']:
             print(self.playerresponse[int(self.response)-1])
-            time.sleep(1.5)
+            printdelay()
             if self.children != None:
                 print(self.children[int(self.response)-1])
-                time.sleep(1.5)
+                printdelay()
         else:
             print('Invalid commmand')
             self.responsed()
@@ -197,7 +221,7 @@ class DialogNode():
 RescueTree4 = DialogNode(primary=""" "You're back...but where..where is my son?" """, playerresponse=[""" 1. " I'm sorry, I was too late. If it is any comfort, I killed those responsible." """, """ 2. "He had been tainted by chaos, its foul taint must be purged wherever it is found." """], children=[""" The merchant's face crumples, but then he takes a deep breath and collects himself. "He is with the Emperor, and I can take comfort in knowing that he will be the last person killed by those monsters." """, """ "What...? What!" The merchant suddenly seems to find his courage and draws his pistol. """])
 RescueTree5 = DialogNode(primary= """ "You found him! Thank the Emperor!" """, playerresponse=["""1. "It is always a pleasure to be of service." """, """2. "Yeah yeah, are you going to pay me or what?" """])
 RescueTree3 = DialogNode(primary='You finish off the heretic leader and quicky move towards the pedestal', playerresponse=['1. Free the young man and take him back to his father.', '2. He has been tainted by chaos and must be purged!'], children=['You are able to free the young man and free him from the circle, you carry him back through the heretic lair. The merchant has worked his way down to the bottom of the ramp.', "You raise your weapon and grant him the Emperor's peace. You trudge back through the heretic lair. The merchant is waiting for you at the bottom of the ramp."], nextnode=[RescueTree5, RescueTree4])
-RescueTree2 = DialogNode(playerresponse=[""" 1. "I'll see what I can do." """, """ 2. "I don't have time for this" """], children=[""" "Thank you, thank you so much!" """, """ "But..but.." """])
+RescueTree2 = DialogNode(playerresponse=[""" 1. "I'll see what I can do." """, """ 2. "I don't have time for this" """], children=[""" "Thank you, thank you so much!" """, """ "But..but.." You push the merchant roughly aside and continue onwards. """])
 RescueTree1 = DialogNode(primary='"Please, you look like someone who can fight, you must help me."', playerresponse=[""" 1. "What's wrong?" """, """ 2. "Get off me!" """], children=['"Its my son has been taken, please help me"', """ "I'm sorry, I'm sorry. But my son, hes been kidnapped." """], nextnode=[RescueTree2, RescueTree2])
 
 
@@ -220,16 +244,16 @@ def rescue_stage1part1():
     print('A crazed looking merchant suddenly lurches up beside you and grabs your arm.')
     conversation(RescueTree1)
     if RescueTree2.getresponse() == 1:
-        print(""" "The merchant almost drags you across the room to a door on the west side. He opens it and then jumps to the side. "I saw them go do there." A ramp slopes downn and west into the dark, at the end you can spot a door. """)
+        print(""" "The merchant almost drags you across the room to a door on the west side. He opens it and then jumps to the side. "I saw them go do there." A ramp slopes down and west into the dark, at the end you can spot a door. """)
         player.location = ramproom
     rescue.stage = 1
 
 def rescue_endstage():
-    if RescueTree3.getresponse() == 1:
+    if RescueTree4.getresponse() == 1:
         print(""" "Of course, I don't have much, but maybe I have something that can help you." """)
-        time.sleep(1.5)
+        printdelay()
         print('The merchant takes you back to the main hall, he ducks behind one of the stalls and then rises up holding a sword of dull grey metal, with wicked looking teath running down one side of the blade.')
-        time.sleep(1.5)
+        printdelay()
         player.equipment.append(chainsword)
         print('You take the chainsword')
         player.location = merchantroom
@@ -239,7 +263,7 @@ def rescue_endstage():
         player.location.enemies.append(desperate_merchant)
         for enemy in player.location.enemies:
             AIcombat(enemy, player)
-            time.sleep(1.5)
+            printdelay()
         merchantroom.allies.remove(desperate_merchant)
 
 
@@ -260,6 +284,7 @@ def check_quests():
     if rescue.stage == 4:
         rescue_endstage()
         rescue.stage = 5
+        print('Quest Complete!')
 
 
 
@@ -314,7 +339,7 @@ class Actor():
                 self.rangetotarget == 1
                 prior_room = self.location
                 self.location = roomtoenter
-                print('You are in ' + roomtoenter.desc)
+                print('You are ' + roomtoenter.desc)
 
             else:
                 print('Enemies block your path!')
@@ -323,6 +348,7 @@ class Actor():
             if roomtoenter != None:
                 prior_room = self.location
                 self.location = roomtoenter
+                self.rangetotarget == 1
                 print('You are in ' + roomtoenter.desc)
 
                 if (self.location.enemies != None and self.location.enemies != []):
@@ -346,6 +372,7 @@ class Actor():
             player.location.enemies.remove(self)
             print(self.name + ' has died')
             self.health = self.maxhealth
+            self.rangetotarget = 1
             playerXP = playerXP + self.xpreward
             print('You gain ' + str(self.xpreward) + ' experience!')
             if playerXP >= nextlevel:
@@ -403,7 +430,7 @@ class Room():
 
 
 def createalertstring(givenlist):
-    print('There are enemies in the room!')
+    print('There are enemies here!')
     print('You spot ', end='')
     if len(givenlist) > 1:
         genlist(givenlist)
@@ -429,7 +456,11 @@ def genlist(givenlist):
         else:
             l.append(str(len(x)) + ' ' + x[0])
     l2 = ', '.join([item for item in l[:-1]])
-    print(l2 + ', and ' + l[-1])
+
+    if len(l2) > 1:
+        print(l2 + ', and ' + l[-1])
+    else:
+        print(l[-1])
 
 
 
@@ -441,12 +472,20 @@ def createbulletshooting(name, weapon, target):
     options = ['The ' + name + ' raises their ' + weapon + ' to their shoulder and releases a hail of gunfire into ' + target + '!']
     return(options[random.randrange(0, len(options))])
 
+def createenergyshooting(name, weapon, target):
+    options = ['The ' + name + ' aims their ' + weapon + ' at ' + target + ' and unleashes a searing stream of energy!']
+    return(options[random.randrange(0, len(options))])
+
 def meleeattack(name, weapon, target):
     options = ['The ' + name + ' slashes ' + target + ' with their ' + weapon + '!']
     return(options[random.randrange(0, len(options))])
 
 def createbulletshooting_player(name, weapon, target):
     options = ['You raise your ' + weapon + ' to your shoulder and release a hail of gunfire into ' + target+ '!']
+    return(options[random.randrange(0, len(options))])
+
+def createenergyshooting_player(name, weapon, target):
+    options = ['You aim your ' + weapon + ' at ' + target + ' and unleash a searing stream of energy!']
     return(options[random.randrange(0, len(options))])
 
 def meleeattack_player(name, weapon, target):
@@ -488,7 +527,12 @@ def lookatitems(character):
     for x in character.equipment:
         print(x.name)
 
-    print('You have ' + str(autogunammo[0]) + ' rounds of autogun ammo')
+    if autogunammo[0] > 0:
+        print('You have ' + str(autogunammo[0]) + ' rounds of autogun ammo')
+    if lasgunammo[0] > 0:
+        print('You have ' + str(lasgunammo[0]) + ' las shots')
+    if bolterammo[0] > 0:
+        print('You have ' + str(lasgunammo[0]) + ' bolter shells')
 
 
 def damage(attacker, target):
@@ -510,12 +554,12 @@ def damage(attacker, target):
         target.health = target.health - d
         if target.name == 'you':
             print('You take ' + str(d) + ' damage!')
-            time.sleep(1.5)
+            printdelay()
             print('You have ' + str(target.health) + ' health remaining!')
 
         else:
             print(target.name + ' takes ' + str(d) + ' damage!')
-            time.sleep(1.5)
+            printdelay()
             print(target.name + ' has ' + str(target.health) + ' health remaining!')
 
         if target.health <= 0:
@@ -529,11 +573,16 @@ def AIcombat(attacker, target):
 
         if attacker.weapon.wrange == 0:
             print(meleeattack(attacker.name, attacker.weapon.name, target.name))
-            time.sleep(1.5)
+            printdelay()
             damage(attacker, target)
         else:
-            print(createbulletshooting(attacker.name, attacker.weapon.name, target.name))
-            time.sleep(1.5)
+            if attacker.weapon.ammotype == 'autogun':
+                print(createbulletshooting(attacker.name, attacker.weapon.name, target.name))
+            elif attacker.weapon.ammotype == 'plasma':
+                print(createenergyshooting(attacker.name, attacker.weapon.name, target.name))
+            else:
+                print('The ' + attacker.name + ' shoots ' + target.name + ' with their ' + attacker.weapon.name)
+            printdelay()
             damage(attacker, target)
         if target.health <= 0:
             target.dies()
@@ -545,23 +594,31 @@ def playercombat(enemy_object):
         interpreter(player, listener())
     else:
         if player.weapon.wrange > 0:
-            print(createbulletshooting_player(player.name, player.weapon.name, enemy_object.name))
             temp = ammotypeDict[player.weapon.ammotype][0] - 5
             if temp < 0:
                 print("You don't have enough ammo! Switch weapons... or run away.")
                 interpreter(player, listener())
+
             else:
+                if player.weapon.ammotype == 'plasma':
+                    print(createenergyshooting_player(player.name, player.weapon.name, enemy_object.name))
+
+                elif player.weapon.ammotype == 'autogun':
+                    print(createbulletshooting_player(player.name, player.weapon.name, enemy_object.name))
+
+                else:
+                    print('You shoot the ' + enemy_object.name + ' with your ' + player.weapon.name)
                 autogunammo[0] = temp
                 damage(player, enemy_object)
-                time.sleep(1.5)
+                printdelay()
         else:
             print(meleeattack_player(player.name, player.weapon.name, enemy_object.name))
             damage(player, enemy_object)
-            time.sleep(1.5)
+            printdelay()
     if player.location.enemies != None and player.location.enemies != []:
         for enemy in player.location.enemies:
             AIcombat(enemy, player)
-            time.sleep(1.5)
+            printdelay()
 
 
 
@@ -693,7 +750,7 @@ def interpreter(character, command):
             else:
                 print("You don't have any medpacks to use.")
 
-    elif set_listofwordsincommand.intersection({'ammo', 'ammunition', 'case', 'autogun ammo', 'autogun ammunition'}):
+    elif set_listofwordsincommand.intersection({'ammo', 'ammunition', 'case', 'packs'}):
         if character.location.ammo == None:
             print('There is no ammunition to take.')
         else:
@@ -729,9 +786,6 @@ def interpreter(character, command):
         if (character.location.enemies != None and character.location.enemies != []):
             print('You raise your weapon up and race towards your foes')
             character.charge()
-            for enemy in character.location.enemies:
-                AIcombat(enemy, character)
-                time.sleep(1.5)
         else:
             print('There is nothing to charge!')
 
@@ -746,27 +800,34 @@ def interpreter(character, command):
     elif set_listofwordsincommand.intersection({'west', 'w', 'westwards', 'West', 'W'}):
         move_west(character)
     elif set_listofwordsincommand.intersection({'search', 'examine', 'look', 'look around'}):
-        character.searchRoom(character.location)
+        if character.location.enemies != None and character.location.enemies != []:
+            print("There are enemies in the room, better deal with them before looking around!")
+        else:
+            character.searchRoom(character.location)
     elif command in ['take all', 'take everything']:
-        if (character.location.items == None and character.location.ammo == None):
-            print('Nothing found')
-        x = 0
-        while character.location.items != [] and character.location.items != None:
+        if character.location.enemies != None and character.location.enemies != []:
+            print("There are enemies in the room, better deal with them before taking things!")
 
-            for item in character.location.items:
-                if item.name in weaponsDict.keys():
-                    character.equip_weapon(item.name)
-                if item.name in armoursDict.keys():
-                    character.equip_armour(item.name)
-                if item.name in healthitemsDict.keys():
-                    character.equipment.append(item)
-                    character.location.items.remove(item)
-                    print('You take the medpack')
-        while character.location.ammo !=[] and character.location.ammo != None:
-            for item in character.location.ammo:
-                if item.name in ammoDict.keys():
-                    ammoDict[item.name].take()
-                    character.location.ammo.remove(item)
+        else:
+            if (character.location.items == None and character.location.ammo == None):
+                print('Nothing found')
+            x = 0
+            while character.location.items != [] and character.location.items != None:
+
+                for item in character.location.items:
+                    if item.name in weaponsDict.keys():
+                        character.equip_weapon(item.name)
+                    if item.name in armoursDict.keys():
+                        character.equip_armour(item.name)
+                    if item.name in healthitemsDict.keys():
+                        character.equipment.append(item)
+                        character.location.items.remove(item)
+                        print('You take the medpack')
+            while character.location.ammo !=[] and character.location.ammo != None:
+                for item in character.location.ammo:
+                    if item.name in ammoDict.keys():
+                        ammoDict[item.name].take()
+                        character.location.ammo.remove(item)
 
 
 
@@ -777,7 +838,7 @@ def interpreter(character, command):
         print('You are caught!')
         for enemy in character.location.enemies:
             AIcombat(enemy, character)
-            time.sleep(1.5)
+            printdelay()
 
     elif set_listofwordsincommand.intersection({'equip', 'use'}):
         equipcmd = command.split(' ', 1)
@@ -811,9 +872,10 @@ def interpreter(character, command):
         print('You make it mad!')
         for enemy in character.location.enemies:
             AIcombat(enemy, character)
-            time.sleep(1.5)
+            printdelay()
 
-
+    elif set_listofwordsincommand.intersection({'take', 'pick up', 'grab'}):
+        print('Take what?')
     else:
         print('Invalid Command')
         interpreter(player, listener())
@@ -832,26 +894,34 @@ heretic = Actor(name = 'heretic', weapon=battered_autopistol, armour=old_flak_ja
 merchant = Actor(name = 'merchant', weapon=battered_autopistol)
 man = Actor(name = 'man', health = 50)
 woman = Actor(name = 'woman', health = 50)
+OrkBoy = Actor(name = 'ork boy', health = 150, weapon = bolt_pistol, armour=rusty_metal_armour, strength=3, dexterity=2, xpreward=70)
 
-desperate_merchant = Actor(name = 'desperate merchant', weapon=battered_autopistol)
+desperate_merchant = Actor(name = 'desperate merchant', weapon=battered_autopistol, xpreward=30)
 heretic_leader = Actor(name='heretic leader', weapon=rusty_auto_gun, armour=rusty_metal_armour, dexterity=2, xpreward=60)
 
 player = Actor(name='you', weapon=fists, armour=clothes, rangetotarget=1)
 
 
-startRoom = Room('Start', desc='a small grimy room with a door on the north wall', items=[rusty_auto_gun, old_flak_jacket, medpack, axe], ammo=[autogunammocase])
-secondRoom = Room('hallway1', desc='a long dark hallway running past the door of the room to the east and west. There are other doors lining the hall, but they are locked, barred, or otherwise impassable', enemies=[gretchin, big_gretchin], South=startRoom)
-lookout = Room('lookout', desc='a room with a smashed row of windows lining one wall. Outside you can see Grybith hive, from your position partway up the spire you can see the damaged city spread out towards the horizon. In the distance you can see the ruins of the massive walls that once surrounded Grybith.', items=[medpack], East=secondRoom)
-anteroom = Room('anteroom', desc='a small anteroom. To the north a door is ajar; light and voices spill from the other side.', West=secondRoom)
-merchantroom = Room('merchantroom', desc='a large rectangular room with high ceilings. A second story gallery once stretched along several of the walls, but it has collapsed. The rubble has been pushed into the corners to make room for several stalls. There are exits in every direction.', allies=[man, man, man, woman, merchant, desperate_merchant], South=anteroom)
-ramproom = Room('ramproom', desc=' a room with a long ramp sloping down and to the west into the dark, there is a door at the end of it.', East=merchantroom)
-bloodyroom = Room('bloodyroom', desc='a room with long blood stains down the sides of the walls, almost as if the ceiling was bleeding. There is a an archway to the south covered in a black cloth', items=[medpack, knife])
-sacrifcialchamber = Room('sacrifcialchamber', desc='a large circular room with a pedestal in the middle. There is a door on the eastern wall', enemies=[heretic])
-Hereticstorage = Room('Hereticstorage', desc='a small room with a few boxes. You poke around but find nothing interesting.', West=sacrifcialchamber)
+startRoom = Room('Start', desc='in a small grimy room with a door on the north wall', items=[rusty_auto_gun, old_flak_jacket, medpack, axe], ammo=[autogunammocase])
+secondRoom = Room('hallway1', desc='in a long dark hallway running past the door of the room to the east and west. There are other doors lining the hall, but they are locked, barred, or otherwise impassable', enemies=[gretchin, big_gretchin], South=startRoom)
+lookout = Room('lookout', desc='in a room with a smashed row of windows lining one wall. Outside you can see Grybith hive, from your position partway up the spire you can see the damaged city spread out towards the horizon. In the distance you can see the ruins of the massive walls that once surrounded Grybith.', items=[medpack], East=secondRoom)
+anteroom = Room('anteroom', desc='in a small anteroom. To the north a door is ajar; light and voices spill from the other side.', West=secondRoom)
+merchantroom = Room('merchantroom', desc='in a large rectangular room with high ceilings. A second story gallery once stretched along several of the walls, but it has collapsed. The rubble has been pushed into the corners to make room for several stalls. There are exits in every direction.', allies=[man, man, man, woman, merchant, desperate_merchant], South=anteroom)
+ramproom = Room('ramproom', desc='in  a room with a long ramp sloping down and to the west into the dark, there is a door at the end of it.', East=merchantroom)
+bloodyroom = Room('bloodyroom', desc='in a room with long blood stains down the sides of the walls, almost as if the ceiling was bleeding. There is a an archway to the south covered in a black cloth', items=[medpack, knife])
+sacrifcialchamber = Room('sacrifcialchamber', desc='in a large circular room with a pedestal in the middle. There is a door on the eastern wall', enemies=[heretic])
+Hereticstorage = Room('Hereticstorage', desc='in a small room with a few boxes.', West=sacrifcialchamber, ammo=[autogunammocase])
+warren = Room('warren', desc='in a filthy warren of rooms that spread out in a nonsensical fashion. Some of the "walls" are nothing more than tarps. It takes you a moment to notice that some of piles you mistook for rags are actually people, they shy away from you, refusing to meet your eye, some scramble up meager possessions and flee. The maze continues down and to the east.', West=merchantroom)
+warren2 = Room('a continuation of the warrens', desc='in the wild tangle of rooms continues. More people, more makeshift homes, more hopelessness. You are somewhat turned around, but notice a wide corridor leading south. Somewhere to the west behind you, you know there is a way back towards the enterance.', West=warren)
+warren3 = Room('corridor', desc='in a long wide corridor. At the northern end, there is the enterance to the filthy slums. Indeed, there are tents, beds, and people crowding near the entrence and spreading down the corridor. However, farther south the human sprawl lessens and eventually disapears. You frown and glance at the people crowded far to close for comfort at the north end. A young girl, covered in grime catchs your eye. She points down the tunnel, and shakes her head; eyes wide with fear.', North=warren2)
+warren4 = Room('2nd corridor', desc="in a corridor running north to south. You can't make much out to the north due to poor lighting. The south is completely blocked by a massive collapse. A brief examination shows that the desctruction was too targeted to be an accident, this tunnel was collapsed on purpose. There is a door near the collapse on the western wall of the tunnel.", enemies=[big_gretchin], North=warren3)
+security = Room('Security', desc='in a small room that runs paralell to the main tunnel, it seems to be a security room of some kind. To the south you can see a thick blast door leading outside.', enemies=[gretchin], East=warren4)
+landingpad = Room('landing pad', desc="on a thin platform leading out to landing pad. You step outside and can barely contain a gasp, stretching out before you is a verticle shaft so large a frigate could fly down it with room to spare. Above you there is a bright circle of light that marks the entrance. However, the light does not penetrate far, as you can't make out the bottom. An extremely makeshift shuttle sits on the pad to the south.", enemies=[gretchin, gretchin2], ammo=[autogunammocase], North=security)
+ship = Room('shuttle', desc='in the tiny stinking confines of what appears to be a small broken ork shuttlcraft', enemies=[OrkBoy], items=[battered_lasgun], ammo=[lasgunammocase], North=landingpad)
+
 
 
 deadwomanRoom = Room('noblewoman house', desc='a fancy house with plates that gleam like a thousand moons. A stench hits you as you look around a table and see a woman on her back wearing an expensive gown for a noblewoman that used to be white, but now is soaked with her blood. You notice a deep knife wound that appears to have been her demise. Politics in the hives are always messy. Exits lie to the north and east.',West=secondRoom)
-
 gretchin_nest = Room('gretchin nest', desc='a dank room that smells as if something foul had been living there for some time. There are exits to the south and east.', enemies=[big_gretchin], West=deadwomanRoom)
 oldstoreroom = Room('storeroom', desc='a room filled with unopenable boxes. Something glints in the shadows in the corner of your eye as the light from the room behind you enters. There are no new exits', items=[knife], South=deadwomanRoom)
 guardroom = Room('guardroom1', desc='a disorganized room with a shivering man that does not respond to your calls. You see that he is wearing PDF uniform and realize he must have been here when the invasion happened. He is obviously insane and you decide to leave him alone. There are no new exits.', allies=[man], North=gretchin_nest)
@@ -861,24 +931,27 @@ guards_quarters= Room('guards quaters', desc='a small room where beds lay in rui
 
 
 
-def stupidhack():
+def loading():
     global nextlevel
     global prior_room
     global playerXP
     global maxhealth
     global autogunammo
     ammoDict.update({'a case of autogun ammunition': autogunammocase})
+    ammoDict.update({'several lasgun packs': lasgunammocase})
     ammotypeDict.update({'autogun': autogunammo})
+    ammotypeDict.update({'lasgun': lasgunammo})
     pluralDict.update({'man': 'men'})
     pluralDict.update({'woman': 'women'})
     pluralDict.update({'heretic': 'heretics'})
     pluralDict.update({'gretchin': 'gretchin'})
-    pluralDict.update({'big gretchin': 'gretchin'})
+    pluralDict.update({'big gretchin': 'big gretchin'})
     pluralDict.update({'ork boy': 'ork boyz'})
-
     playerXP = 0
     nextlevel = 50
     maxhealth = 100
+
+    #There has got to be a better way to do this.
     startRoom.North = secondRoom
     secondRoom.West = lookout
     secondRoom.East = anteroom
@@ -887,7 +960,6 @@ def stupidhack():
     deadwomanRoom.East = gretchin_nest
     gretchin_nest.East = bloodyroom
     gretchin_nest.South = guardroom
-    #bloodyroom.North = armory
     armory.North = guards_quarters
     prior_room = startRoom
     player.location = startRoom
@@ -898,6 +970,14 @@ def stupidhack():
     sacrifcialchamber.North = bloodyroom
     bloodyroom.East = ramproom
     sacrifcialchamber.West = Hereticstorage
+    merchantroom.East = warren
+    warren.East = warren2
+    warren2.South=warren3
+    warren3.South=warren4
+    warren4.West=security
+    security.South=landingpad
+    landingpad.South=ship
+
 
 
 def main_Control_Loop():
@@ -909,7 +989,7 @@ def main_Control_Loop():
     level_up(player)
     print('Select starting stats: 2/2')
     level_up(player)
-    print('You are in ' + startRoom.desc)
+    print('You are ' + startRoom.desc)
     print('Type help for help')
     while playing:
         check_quests()
@@ -922,10 +1002,13 @@ def main_Control_Loop():
 
 
 if __name__ == '__main__':
+
     print('Welcome')
     print('Hint: remember to search rooms for items before you leave')
     #print("Enter your character's name")
     #playername = sys.stdin.readline().strip()
     #player.name = playername
-    stupidhack()
+
+
+    loading()
     main_Control_Loop()
