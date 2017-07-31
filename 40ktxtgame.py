@@ -438,7 +438,7 @@ def whichdesc(roomtoenter):
         print(shortdesc)
         roomtoenter.firsttime = False
     else:
-        print('You are in ' + roomtoenter.desc)
+        print('You are ' + roomtoenter.desc)
 
 class Room():
     def __init__(self, name, desc='A dimly lit room with nothing remarkable', shortdesc=None, enemies=None, allies=None, items=None, ammo=None, canexamine=None, North=None, East=None, South=None, West=None, firsttime=False):
@@ -724,7 +724,7 @@ def interpreter(character, command):
 
 
 
-    if command in ['examine inventory', 'inventory', 'items']:
+    if command in ['examine inventory', 'inventory', 'items', 'inv']:
         lookatitems(character)
     elif command == "help":
         myhelp()
@@ -987,7 +987,7 @@ utilitydoor = ToExamine('utility door', 'You attempt to open the door, but its l
 
 
 startRoom = Room('Start', desc='in a small grimy room with a door on the north wall. A mirror is propped against a wall.', items=[rusty_auto_gun, old_flak_jacket, medpack, axe], canexamine=[mirror1], ammo=[autogunammocase])
-secondRoom = Room('hallway1', desc='in a long dark hallway running past the door of the room to the east and west. There are other doors lining the hall, but they are locked, barred, or otherwise impassable', enemies=[gretchin], South=startRoom)
+secondRoom = Room('hallway1', desc='in a long dark hallway that runs east to west. There are other doors lining the hall, but they are locked, barred, or otherwise impassable', enemies=[gretchin], South=startRoom)
 lookout = Room('lookout', desc='in a room with a smashed row of windows lining one wall. Outside you can see Grybith hive, from your position partway up the spire you can see the damaged city spread out towards the horizon. In the distance you can see the ruins of the massive walls that once surrounded Grybith.', items=[medpack], canexamine=[window1], East=secondRoom)
 anteroom = Room('anteroom', desc='in a small anteroom. To the north a door is ajar; light and voices spill from the other side.', West=secondRoom)
 merchantroom = Room('merchantroom', desc='in a large rectangular room with high ceilings. A second story gallery once stretched along several of the walls, but it has collapsed. The rubble has been pushed into the corners to make room for several stalls. There are exits in every direction.', allies=[man, man, man, woman, merchant, desperate_merchant], canexamine=[merchantstall], South=anteroom)
