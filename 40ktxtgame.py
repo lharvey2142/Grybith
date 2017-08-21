@@ -20,7 +20,7 @@ ammotypeDict={}
 pluralDict={}
 
 def myhelp():
-    print(""" Grybith is a text based rpg / exploration game set in the Warhammer 40k universe.
+    print(""" Grybith is a text based rpg / exploration game set in the Warhammer 40k universe. The game is still under development and you may encounter bugs.   bbbbbbbbbbbbbbbbbbbnnb
 
     Commands:
 
@@ -174,17 +174,25 @@ class ToExamine():
         examineDict.update({self.name: self})
 
     def examine(self):
+        print(self.willcall)
         print(self.onexamine)
         if self.quest != None:
             self.quest.stage = self.queststage
         self.haveexamined = True
         if self.willcall != None:
-            print('does this appear?')
-            self.willcall
+            self.willcall()
 
 
 def utility():
-    print('test')
+    print('A screen on the door blinks slowly: Enter Access Code')
+    doorcmd = sys.stdin.readline().strip()
+    if doorcmd == '41281':
+        print('...Access Granted')
+        print('You push open the door and slide carefully inside.')
+        player.location = utilityroom
+
+    else:
+        print('...Access Denied')
 
 
 lasgunammocase = Lasgunammo('several lasgun packs', 30)
@@ -206,6 +214,7 @@ rusty_metal_armour = Armour('Rusty metal armour', 15)
 chainsword = Weapon('chainsword', 65, 0)
 bolt_pistol = Weapon('bolt pistol', 75, 1, 'bolter')
 battered_lasgun = Weapon('battered lasgun', 50, 1, 'lasgun')
+autopistol = Weapon('autopistol', 25, 1, 'autogun')
 
 
 
@@ -971,21 +980,29 @@ merchant = Actor(name = 'merchant', weapon=battered_autopistol)
 man = Actor(name = 'man', health = 50)
 woman = Actor(name = 'woman', health = 50)
 OrkBoy = Actor(name = 'ork boy', health = 150, weapon = bolt_pistol, armour=rusty_metal_armour, strength=3, dexterity=2, xpreward=70)
+hiveganger = Actor(name = 'hive ganger', health = 100, weapon = axe, armour=old_flak_jacket, strength=2, xpreward=40)
+hiveganger2 = Actor(name = 'hive ganger', health = 100, weapon = autopistol, armour=old_flak_jacket, dexterity=2, xpreward=40)
 
-desperate_merchant = Actor(name = 'desperate merchant', weapon=battered_autopistol, xpreward=30)
+desperate_merchant = Actor(name = 'desperate merchant', weapon=autopistol, xpreward=30)
 heretic_leader = Actor(name='heretic leader', weapon=rusty_auto_gun, armour=rusty_metal_armour, dexterity=2, xpreward=60)
 
 player = Actor(name='you', weapon=fists, armour=clothes, rangetotarget=1)
 
-mirror1 = ToExamine('cracked mirror', 'Your reflection stares back sullenly.')
+
+#   def __init__(self, name, onexamine, quest=None, queststage=0, hasexamined=False, willcall=None):
+
+mirror1 = ToExamine(name='cracked mirror', onexamine='Your reflection stares back sullenly.')
 window1 = ToExamine('window', 'The windows are sealed tight.')
 merchantstall = ToExamine('merchant stall', 'You quickly glance over the items on display, but none of them are any use to you.')
 pedestal = ToExamine('pedestal', 'An evil looking structure of twisted metal and rusty spikes')
 shuttle1 = ToExamine('ork shuttle', 'The shuttle is smoking slightly and does not seem to have been on the pad long.')
 crack = ToExamine('crack in ceiling', 'You stand up on a desk to get a better look, and an icy hand seems to grip your gut. A line of explosives is wedged into the crack. After regaining your balance you take a closer look, most of the wires are frayed, several of the explosive packs are missing, and you can see no sign of any form of detonator. There does not seem to be an immidiate danger, but best to leave the weapons alone.')
-utilitydoor = ToExamine('utility door', 'You attempt to open the door, but its locked shut', willcall=utility())
+utilitydoor = ToExamine('utility door', 'You attempt to open the door, but it is locked shut', willcall=utility)
+roofcollapse = ToExamine('collapse of rubble', 'You start to move a few of the smaller pieces of debris when you notice what is unmistakably a human arm. You has you move more rubble you uncover more of the unfortunate person dressed in a workers uniform. You find a small card in one pocket that just has the numbers 41281 written on it.')
 
 
+
+#I need to figure out if the pythonanywhere gist can take multiple files. All this text is a pain
 startRoom = Room('Start', desc='in a small grimy room with a door on the north wall. A mirror is propped against a wall.', items=[rusty_auto_gun, old_flak_jacket, medpack, axe], canexamine=[mirror1], ammo=[autogunammocase])
 secondRoom = Room('hallway1', desc='in a long dark hallway that runs east to west. There are other doors lining the hall, but they are locked, barred, or otherwise impassable', enemies=[gretchin], South=startRoom)
 lookout = Room('lookout', desc='in a room with a smashed row of windows lining one wall. Outside you can see Grybith hive, from your position partway up the spire you can see the damaged city spread out towards the horizon. In the distance you can see the ruins of the massive walls that once surrounded Grybith.', items=[medpack], canexamine=[window1], East=secondRoom)
@@ -998,12 +1015,17 @@ Hereticstorage = Room('Hereticstorage', desc='in a small room with a few boxes.'
 warren = Room('warren', desc='in a filthy warren of rooms that spread out in a nonsensical fashion. Some of the "walls" are nothing more than tarps. It takes you a moment to notice that some of piles you mistook for rags are actually people, they shy away from you, refusing to meet your eye, some scramble up meager possessions and flee. The maze continues down and to the east.', West=merchantroom)
 warren2 = Room('a continuation of the warrens', desc='in the wild tangle of rooms continues. More people, more makeshift homes, more hopelessness. You are somewhat turned around, but notice a wide corridor leading south. Somewhere to the west behind you, you know there is a way back towards the enterance.', West=warren)
 warren3 = Room('corridor', desc='in a long wide corridor. At the northern end, there is the enterance to the filthy slums. Indeed, there are tents, beds, and people crowding near the entrence and spreading down the corridor. However, farther south the human sprawl lessens and eventually disapears. You frown and glance at the people crowded far to close for comfort at the north end. A young girl, covered in grime catchs your eye. She points down the tunnel, and shakes her head; eyes wide with fear.', shortdesc='You are in the long corridor, exits to the north and south.', North=warren2)
-warren4 = Room('2nd corridor', desc="in a corridor running north to south. You can't make much out to the north due to poor lighting. The south is completely blocked by a massive collapse. A brief examination shows that the desctruction was too targeted to be an accident, this tunnel was collapsed on purpose. There is a door near the collapse on the western wall of the tunnel.", enemies=[big_gretchin], North=warren3)
+warren4 = Room('2nd corridor', desc="in a corridor running north to south. You can't make much out to the north due to poor lighting. The south is completely blocked by a massive collapse. A brief examination shows that the destruction was too targeted to be an accident, this tunnel was collapsed on purpose. There is a door near the collapse on the western wall of the tunnel.", enemies=[big_gretchin], North=warren3)
 security = Room('Security', desc='in a small room that runs paralell to the main tunnel, it seems to be a security room of some kind. To the south you can see a thick blast door leading outside.', enemies=[gretchin], canexamine=[crack], East=warren4)
 landingpad = Room('landing pad', desc="on a thin platform leading out to landing pad. You step outside and can barely contain a gasp, stretching out before you is a verticle shaft so large a frigate could fly down it with room to spare. Above you there is a bright circle of light that marks the entrance. However, the light does not penetrate far, as you can't make out the bottom. An extremely makeshift shuttle sits on the pad to the south.", shortdesc='You are on the landing platform', enemies=[gretchin, gretchin2], ammo=[autogunammocase], canexamine=[shuttle1], North=security)
 ship = Room('shuttle', desc='in the tiny stinking confines of what appears to be a small broken ork shuttlcraft', enemies=[OrkBoy], items=[battered_lasgun], ammo=[lasgunammocase], North=landingpad)
-stairs = Room('nmerchant', desc='on a wide set of stairs desending northwards, in happier times thousands of people would have climbed these every day, now they lie broken and empty.', canexamine=[utilitydoor], South=merchantroom)
-
+stairs = Room('nmerchant', desc='on a wide set of stairs desending northwards, in happier times thousands of people would have climbed these every day, now they lie broken and empty. There is a small utility door on one side of the staircase.', canexamine=[utilitydoor], South=merchantroom)
+utilityroom = Room('uroom', desc='in a utility room with a door on the east wall. There is a considerable amount of stuff in the room, most of it useless, but you may find something of interest if you look around.', items=[medpack, medpack], ammo=[bolterammocase, lasgunammocase, autogunammocase], East=stairs)
+promonade = Room('prom', desc='on a wide promonade runs east and west, stretching away into the gloom. Broken decorations, adverstisements, and other trash litter the avenue. To the south the massive stairway heads up and down, but the downward flight has been blocked by the ruined wrechage of several Imperial Guard Chimeras. How they got there is a mystery.', South=stairs)
+promw1 = Room('promw1', desc='on a promonade that runs east to west, there is a wide archway to the north.', East=promonade)
+npromw1 = Room('npromw1', desc='on a short wide walkway that opens onto a square surrounded by the ruins of what look like apartements. This section of the hive appears to have been hit by a barrage of artillery shells. The outer shell of the hive took the majority of the beating, but several shells pieced through into this complex.', enemies=[hiveganger, hiveganger2],ammo=[autogunammocase], South=promw1)
+promw2 = Room('promw2', desc='on a promonade that runs east to west, there is an observation deck to your north, but the massive windows are covered by blast doors.', East=promw1)
+promw3 = Room('promw3', desc='on a promonade that runs east to west, this section has a noticable curve along the contour of the hive. One section of the wall has collapsed into a heap of rubble.', canexamine=[roofcollapse], East=promw2)
 
 deadwomanRoom = Room('noblewoman house', desc='a fancy house with plates that gleam like a thousand moons. A stench hits you as you look around a table and see a woman on her back wearing an expensive gown for a noblewoman that used to be white, but now is soaked with her blood. You notice a deep knife wound that appears to have been her demise. Politics in the hives are always messy. Exits lie to the north and east.',West=secondRoom)
 gretchin_nest = Room('gretchin nest', desc='a dank room that smells as if something foul had been living there for some time. There are exits to the south and east.', enemies=[big_gretchin], West=deadwomanRoom)
@@ -1016,6 +1038,9 @@ guards_quarters= Room('guards quaters', desc='a small room where beds lay in rui
 
 
 def loading():
+
+
+
     global nextlevel
     global prior_room
     global playerXP
@@ -1031,6 +1056,7 @@ def loading():
     pluralDict.update({'gretchin': 'gretchin'})
     pluralDict.update({'big gretchin': 'big gretchin'})
     pluralDict.update({'ork boy': 'ork boyz'})
+    pluralDict.update({'hive ganger': 'hive gangers'})
     playerXP = 0
     nextlevel = 50
     maxhealth = 100
@@ -1062,6 +1088,11 @@ def loading():
     security.South=landingpad
     landingpad.South=ship
     merchantroom.North=stairs
+    stairs.North = promonade
+    promonade.West = promw1
+    promw1.North = npromw1
+    promw1.West = promw2
+    promw2.West = promw3
 
 
 
@@ -1093,7 +1124,6 @@ if __name__ == '__main__':
     #print("Enter your character's name")
     #playername = sys.stdin.readline().strip()
     #player.name = playername
-
 
     loading()
     main_Control_Loop()
