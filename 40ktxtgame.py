@@ -7,6 +7,7 @@ from itertools import groupby
 
 
 #This has to be a list because it must be a mutable variable
+#why can't it be an int? 2/7/18
 autogunammo = [0]
 lasgunammo = [0]
 bolterammo = [0]
@@ -21,67 +22,43 @@ pluralDict={}
 
 def myhelp():
     print(""" Grybith is a text based rpg / exploration game set in the Warhammer 40k universe. The game is still under development and you may encounter bugs.   bbbbbbbbbbbbbbbbbbbnnb
-
     Commands:
-
     Movement:
-
     The game was designed to be flexible with its commands, for example if the player wants to go north, they
     can type something as simple as "n", or they can type something as complex as "I run quickly northwards,
     my heart pounding in my chest." The commands given in this document aren't comprehensive, often times there are more ways
     to do something than are given here.
-
     Items:
-
     Items can be found within the game by using a command with "search", "look", "examine", or "look around."
-
     Take items using "take + item" Note that you don't have to type the full name of the item if it is on the ground.
     For example, if you find "Adepta Sororitas power armour", typing "take power armour", or "take armour" will work.
-
     Taking an item will automatically equip it into its proper spot. However, if you want to use a different piece of equipment
     the "use + item" or "equip + item" command will move the current weapon or armour to your inventory, and equip the one
     you specified.
-
     Healing items, such as medpacks, will increase your current health, up to your maximum health. They can be taken the same as
     any item, and then used with any command with "medpack" in it.
-
     Ammo can be taken with a fairly wide variety of commands, the simplest is "take ammo"
-
     And, of course, you can take all items in a room with a command like "take all" Note: Make sure that the weapon and armour
     you want to use is equipped after using this command.
-
     General:
-
     You can see your items using "inventory" / "items"
-
     You can print out the enemies in a room with "enemies"
-
     You can print the room's description with "desc"
-
     Combat:
-
     Combat commands are very straight forward
-
     You can attack using a wide variety of verbs followed by what you want to attack. For example: "Shoot gretchin"
-
     Melee weapons can't be used unless you get into range first. You can do this with the "charge" command.
-
     You can switch weapons or armours in the middle of a fight, you can also use healing items.
-
     Strategy:
-
-    None of the quests / objectives in this game are time limited, if something seems too hard for you, come back later
+    None of the quests / objectives in this game are time limited, if something seems to hard for you, come back later
     when you are better equipped.
-
     Melee weapons leave you vulnerable for the first turn, and using one generally means you will take some damage while you
     charge. However, they don't use any ammunition
-
     You can always retreat from a fight by going back the way you came. Though, you won't be able to proceed through a room
     until you have neutralized all the enemies within it.""")
 
 def printdelay(seconds=1.5):
     time.sleep(seconds)
-    print('\n')
 
 adjectives = ['old', 'rusty', 'damaged', 'battered']
 
@@ -175,7 +152,6 @@ class ToExamine():
         examineDict.update({self.name: self})
 
     def examine(self):
-        print(self.willcall)
         print(self.onexamine)
         if self.quest != None:
             self.quest.stage = self.queststage
@@ -253,7 +229,7 @@ class DialogNode():
 
 
 
-RescueTree4 = DialogNode(primary=""" "You're back...but where..where is my son?" """, playerresponse=[""" 1. " I'm sorry, I was too late. If it is any comfort, I killed those responsible." """, """ 2. "He had been tainted by chaos, its foul taint must be purged wherever it is found." """], children=[""" The merchant's face crumples, but then he takes a deep breath and collects himself. "He is with the Emperor, and I can take comfort in knowing that he will be the last person killed by those unholy things." """, """ "What...? What!" The merchant suddenly seems to find his courage and draws his pistol. """])
+RescueTree4 = DialogNode(primary=""" "You're back...but where..where is my son?" """, playerresponse=[""" 1. " I'm sorry, I was too late. If it is any comfort, I killed those responsible." """, """ 2. "He had been tainted by chaos, its foul taint must be purged wherever it is found." """], children=[""" The merchant's face crumples, but then he takes a deep breath and collects himself. "He is with the Emperor, and I can take comfort in knowing that he will be the last person killed by those monsters." """, """ "What...? What!" The merchant suddenly seems to find his courage and draws his pistol. """])
 RescueTree5 = DialogNode(primary= """ "You found him! Thank the Emperor!" """, playerresponse=["""1. "It is always a pleasure to be of service." """, """2. "Yeah yeah, are you going to pay me or what?" """])
 RescueTree3 = DialogNode(primary='You finish off the heretic leader and quicky move towards the pedestal', playerresponse=['1. Free the young man and take him back to his father.', '2. He has been tainted by chaos and must be purged!'], children=['You are able to free the young man and free him from the circle, you carry him back through the heretic lair. The merchant has worked his way down to the bottom of the ramp.', "You raise your weapon and grant him the Emperor's peace. You trudge back through the heretic lair. The merchant is waiting for you at the bottom of the ramp."], nextnode=[RescueTree5, RescueTree4])
 RescueTree2 = DialogNode(playerresponse=[""" 1. "I'll see what I can do." """, """ 2. "I don't have time for this" """], children=[""" "Thank you, thank you so much!" """, """ "But..but.." You push the merchant roughly aside and continue onwards. """])
@@ -268,9 +244,7 @@ class Quest():
 rescue = Quest()
 Genestealers = Quest()
 
-#maybe not needed
-def playercontinue():
-    listener()
+
 
 def conversation(tree):
     tree.responsed()
@@ -281,7 +255,6 @@ def conversation(tree):
 
 def rescue_stage1part1():
     print('A crazed looking merchant suddenly lurches up beside you and grabs your arm.')
-    printdelay()
     conversation(RescueTree1)
     if RescueTree2.getresponse() == 1:
         print(""" "The merchant almost drags you across the room to a door on the west side. He opens it and then jumps to the side. "I saw them go down there." A ramp slopes down and west into the dark, at the end you can spot a door. """)
@@ -290,7 +263,6 @@ def rescue_stage1part1():
 
 def rescue_endstage():
     if RescueTree5.getresponse != None:
-        printdelay()
         print(""" "I don't have much, but maybe I have something that can help you." """)
         printdelay()
         print('The merchant takes you back to the main hall, he ducks behind one of the stalls and then rises up holding a sword of dull grey metal, with wicked looking teath running down one side of the blade.')
@@ -302,7 +274,6 @@ def rescue_endstage():
 
 
     elif RescueTree4.getresponse() == 1:
-        printdelay()
         print(""" "You did your best, and for that I owe you. I don't have much, but I may have something that you can use." """)
         printdelay()
         print('The merchant takes you back to the main hall, he ducks behind one of the stalls and then rises up holding a sword of dull grey metal, with wicked looking teath running down one side of the blade.')
@@ -322,7 +293,6 @@ def rescue_endstage():
 
 
 def check_quests():
-    #this feels bad
     if player.location == merchantroom and rescue.stage == 0:
         rescue_stage1part1()
     if player.location == sacrifcialchamber and rescue.stage == 1:
@@ -450,11 +420,19 @@ class Actor():
 
 
 def whichdesc(roomtoenter):
-    if (roomtoenter.firsttime == False and roomtoenter.shortdesc != None):
+    if (roomtoenter.firsttime == True and roomtoenter.shortdesc != None):
         print(shortdesc)
-    else:
-        print('You are ' + roomtoenter.desc + '\n')
         roomtoenter.firsttime = False
+    else:
+        print('You are ' + roomtoenter.desc)
+
+def pickone(endnumber, listofoptions):
+    if random.randrange(0, endnumber) == 0:
+        return listofoptions[random.randrange(0, len(listofoptions))]
+#how do get in and out of generated areas??
+def generateRoom(possibleEnemies = [], possibleItems = [], possibleDesc = [], possibleAllies = [], possibleAmmo = []):
+    return randomRoom = (desc = pickone(0, possibleDesc), enemies = pickone(2, possibleEnemies), ammo = pickone(4, possibleAmmo)) 
+
 
 class Room():
     def __init__(self, name, desc='A dimly lit room with nothing remarkable', shortdesc=None, enemies=None, allies=None, items=None, ammo=None, canexamine=None, North=None, East=None, South=None, West=None, firsttime=False):
@@ -691,10 +669,9 @@ def playercombat(enemy_object):
             AIcombat(enemy, player)
             printdelay()
 
-#also passing function doesn't seem to work, also 'attack what', isn't working
+#big gretchin didn't attack in the hallway, also passing function doesn't seem to work, also 'attack what', isn't working
 
 def interpreter(character, command):
-    #here be dragons
     set_enemynames = []
     set_allynames = []
     #Lower is problemematic because of items with capital letters
@@ -758,8 +735,6 @@ def interpreter(character, command):
                     possible = [o for o in character.location.enemies if o.name == nameofenemy]
                     enemy_object = possible[0]
                     playercombat(enemy_object)
-                else:
-                    print(verb + ' what?')
 
 
             elif character.location.allies != None:
@@ -1026,7 +1001,7 @@ warren = Room('warren', desc='in a filthy warren of rooms that spread out in a n
 warren2 = Room('a continuation of the warrens', desc='in the wild tangle of rooms continues. More people, more makeshift homes, more hopelessness. You are somewhat turned around, but notice a wide corridor leading south. Somewhere to the west behind you, you know there is a way back towards the enterance.', West=warren)
 warren3 = Room('corridor', desc='in a long wide corridor. At the northern end, there is the enterance to the filthy slums. Indeed, there are tents, beds, and people crowding near the entrence and spreading down the corridor. However, farther south the human sprawl lessens and eventually disapears. You frown and glance at the people crowded far to close for comfort at the north end. A young girl, covered in grime catchs your eye. She points down the tunnel, and shakes her head; eyes wide with fear.', shortdesc='You are in the long corridor, exits to the north and south.', North=warren2)
 warren4 = Room('2nd corridor', desc="in a corridor running north to south. You can't make much out to the north due to poor lighting. The south is completely blocked by a massive collapse. A brief examination shows that the destruction was too targeted to be an accident, this tunnel was collapsed on purpose. There is a door near the collapse on the western wall of the tunnel.", enemies=[big_gretchin], North=warren3)
-security = Room('Security', desc='in a small room that runs paralel to the main tunnel, it seems to be a security room of some kind. To the south you can see a thick blast door leading outside.', enemies=[gretchin], canexamine=[crack], East=warren4)
+security = Room('Security', desc='in a small room that runs paralell to the main tunnel, it seems to be a security room of some kind. To the south you can see a thick blast door leading outside.', enemies=[gretchin], canexamine=[crack], East=warren4)
 landingpad = Room('landing pad', desc="on a thin platform leading out to landing pad. You step outside and can barely contain a gasp, stretching out before you is a verticle shaft so large a frigate could fly down it with room to spare. Above you there is a bright circle of light that marks the entrance. However, the light does not penetrate far, as you can't make out the bottom. An extremely makeshift shuttle sits on the pad to the south.", shortdesc='You are on the landing platform', enemies=[gretchin, gretchin2], ammo=[autogunammocase], canexamine=[shuttle1], North=security)
 ship = Room('shuttle', desc='in the tiny stinking confines of what appears to be a small broken ork shuttlcraft', enemies=[OrkBoy], items=[battered_lasgun], ammo=[lasgunammocase], North=landingpad)
 stairs = Room('nmerchant', desc='on a wide set of stairs desending northwards, in happier times thousands of people would have climbed these every day, now they lie broken and empty. There is a small utility door on one side of the staircase.', canexamine=[utilitydoor], South=merchantroom)
@@ -1121,7 +1096,7 @@ def main_Control_Loop():
         check_quests()
         interpreter(player, listener())
 
-removeme = True
+
 
 
 
