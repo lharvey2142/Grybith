@@ -4,7 +4,7 @@ import time
 #import tkinter as tk
 from itertools import groupby
 
-
+testingtesting123
 
 #This has to be a list because it must be a mutable variable
 #why can't it be an int? 2/7/18
