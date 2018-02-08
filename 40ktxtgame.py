@@ -7,6 +7,7 @@ from itertools import groupby
 
 
 #This has to be a list because it must be a mutable variable
+#why can't it be an int? 2/7/18
 autogunammo = [0]
 lasgunammo = [0]
 bolterammo = [0]
@@ -424,6 +425,14 @@ def whichdesc(roomtoenter):
         roomtoenter.firsttime = False
     else:
         print('You are ' + roomtoenter.desc)
+
+def pickone(endnumber, listofoptions):
+    if random.randrange(0, endnumber) == 0:
+        return listofoptions[random.randrange(0, len(listofoptions))]
+#how do get in and out of generated areas??
+def generateRoom(possibleEnemies = [], possibleItems = [], possibleDesc = [], possibleAllies = [], possibleAmmo = []):
+    return randomRoom = (desc = pickone(0, possibleDesc), enemies = pickone(2, possibleEnemies), ammo = pickone(4, possibleAmmo)) 
+
 
 class Room():
     def __init__(self, name, desc='A dimly lit room with nothing remarkable', shortdesc=None, enemies=None, allies=None, items=None, ammo=None, canexamine=None, North=None, East=None, South=None, West=None, firsttime=False):
