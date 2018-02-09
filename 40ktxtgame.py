@@ -4,7 +4,7 @@ import time
 #import tkinter as tk
 from itertools import groupby
 
-testingtesting123
+
 
 #This has to be a list because it must be a mutable variable
 #why can't it be an int? 2/7/18
@@ -212,7 +212,7 @@ class DialogNode():
         [print(response) for response in self.playerresponse]
         printdelay()
         self.response = listener()
-        #This will cause a crash if something has less than 4 options and too high a number is input.
+        #This will cause a crash if something has less than 4 options and the delta between the options and 4 is input
         if self.response in ['1', '2', '3', '4']:
             print(self.playerresponse[int(self.response)-1])
             printdelay()
@@ -229,7 +229,7 @@ class DialogNode():
 
 
 
-RescueTree4 = DialogNode(primary=""" "You're back...but where..where is my son?" """, playerresponse=[""" 1. " I'm sorry, I was too late. If it is any comfort, I killed those responsible." """, """ 2. "He had been tainted by chaos, its foul taint must be purged wherever it is found." """], children=[""" The merchant's face crumples, but then he takes a deep breath and collects himself. "He is with the Emperor, and I can take comfort in knowing that he will be the last person killed by those monsters." """, """ "What...? What!" The merchant suddenly seems to find his courage and draws his pistol. """])
+RescueTree4 = DialogNode(primary=""" "You're back...but where..where is my son?" """, playerresponse=[""" 1. " I'm sorry, I was too late. If it is any comfort, I killed those responsible." """, """ 2. "He had been tainted by chaos, its foul taint must be purged wherever it is found." """], children=[""" The merchant's face crumples, but then he takes a deep breath and collects himself. "He is with the Emperor, and I can take comfort in knowing that he will be the last person killed by those unholy things." """, """ "What...? What!" The merchant suddenly seems to find his courage and draws his pistol. """])
 RescueTree5 = DialogNode(primary= """ "You found him! Thank the Emperor!" """, playerresponse=["""1. "It is always a pleasure to be of service." """, """2. "Yeah yeah, are you going to pay me or what?" """])
 RescueTree3 = DialogNode(primary='You finish off the heretic leader and quicky move towards the pedestal', playerresponse=['1. Free the young man and take him back to his father.', '2. He has been tainted by chaos and must be purged!'], children=['You are able to free the young man and free him from the circle, you carry him back through the heretic lair. The merchant has worked his way down to the bottom of the ramp.', "You raise your weapon and grant him the Emperor's peace. You trudge back through the heretic lair. The merchant is waiting for you at the bottom of the ramp."], nextnode=[RescueTree5, RescueTree4])
 RescueTree2 = DialogNode(playerresponse=[""" 1. "I'll see what I can do." """, """ 2. "I don't have time for this" """], children=[""" "Thank you, thank you so much!" """, """ "But..but.." You push the merchant roughly aside and continue onwards. """])
@@ -420,18 +420,29 @@ class Actor():
 
 
 def whichdesc(roomtoenter):
-    if (roomtoenter.firsttime == True and roomtoenter.shortdesc != None):
+    if (roomtoenter.firsttime == False and roomtoenter.shortdesc != None):
         print(shortdesc)
-        roomtoenter.firsttime = False
     else:
-        print('You are ' + roomtoenter.desc)
+        print('You are ' + roomtoenter.desc + '\n')
+        roomtoenter.firsttime = False
 
 def pickone(endnumber, listofoptions):
     if random.randrange(0, endnumber) == 0:
         return listofoptions[random.randrange(0, len(listofoptions))]
 #how do get in and out of generated areas??
-def generateRoom(possibleEnemies = [], possibleItems = [], possibleDesc = [], possibleAllies = [], possibleAmmo = []):
-    return randomRoom = (desc = pickone(0, possibleDesc), enemies = pickone(2, possibleEnemies), ammo = pickone(4, possibleAmmo)) 
+
+
+def generateHabBlock():
+    for x in range(0, 10):
+        generateRoom([gretchin], [medpack], ["You are in a series of rooms that used to hold a family", "You are in the center of several damaged apartments", [], [autogunammo])
+
+EnterHab1 = Room(North = )
+
+def generateRoom(possibleEnemies = [], possibleItems = [], possibleDesc = [], possibleAllies = [], possibleAmmo = [], North, South, East, West):
+    randomRoom = Room(desc = pickone(0, possibleDesc), enemies = pickone(2, possibleEnemies), ammo = pickone(4, possibleAmmo))
+    return randomRoom
+
+
 
 
 class Room():
@@ -735,6 +746,8 @@ def interpreter(character, command):
                     possible = [o for o in character.location.enemies if o.name == nameofenemy]
                     enemy_object = possible[0]
                     playercombat(enemy_object)
+                else:
+                    print(verb + ' what?') 
 
 
             elif character.location.allies != None:
@@ -1047,6 +1060,8 @@ def loading():
     maxhealth = 100
 
     #There has got to be a better way to do this.
+    #coordinate based matrices is one option
+    #a messenger method in the room class that was sent to A when B is called. This would create the doublelinked list 
     startRoom.North = secondRoom
     secondRoom.West = lookout
     secondRoom.East = anteroom
