@@ -432,18 +432,42 @@ def pickone(endnumber, listofoptions):
 #how do get in and out of generated areas??
 
 
-def generateHabBlock():
-    for x in range(0, 10):
-        generateRoom([gretchin], [medpack], ["You are in a series of rooms that used to hold a family", "You are in the center of several damaged apartments", [], [autogunammo])
+# def generateHabBlock():
+#     for x in range(0, 10):
+#         generateRoom([gretchin], [medpack], ["You are in a series of rooms that used to hold a family", "You are in the center of several damaged apartments", [], [autogunammo])
 
-EnterHab1 = Room(North = )
+#EnterHab1 = Room(North = )
 
-def generateRoom(possibleEnemies = [], possibleItems = [], possibleDesc = [], possibleAllies = [], possibleAmmo = [], North, South, East, West):
-    randomRoom = Room(desc = pickone(0, possibleDesc), enemies = pickone(2, possibleEnemies), ammo = pickone(4, possibleAmmo))
-    return randomRoom
+# def generateRoom(possibleEnemies = [], possibleItems = [], possibleDesc = [], possibleAllies = [], possibleAmmo = [], North, South, East, West):
+#     randomRoom = Room(desc = pickone(0, possibleDesc), enemies = pickone(2, possibleEnemies), ammo = pickone(4, possibleAmmo))
+#     return randomRoom
 
 
+    
 
+#leaving commented out code for record of work for now
+def linker(roomtolink, roomtolinkto):
+    #not setting variable
+    # call a method within rooom
+    CardDir = {'North' : [roomtolinkto.North, 'South'], 'East' : [roomtolinkto.East, 'West'], 'South' : [roomtolinkto.South, 'North'], 'West' : [roomtolinkto.West,'East']}
+    cardinaldirections = ['North', 'East', 'South', 'West']
+    for cardinaldirection in cardinaldirections: 
+        if CardDir[cardinaldirection][0] != None:
+            print('Trying to link ' + roomtolink.name + ' to ' + roomtolinkto.name)
+
+
+            #roomtolink.North = roomtolinkto
+            #CardDir[cardinaldirection][1] = roomtolinkto
+            roomtolink.changelink(CardDir[cardinaldirection][1], roomtolinkto)
+
+
+            #CardDir[cardinaldirection][1] = roomtolinkto
+            #roomtolink.North = roomtolinkto
+
+            #roomtolink.changelink(cardinaldirection, roomtolinkto)
+            #CardDir[cardinaldirection][0] = roomtolinkto
+            #print(str(CardDir[cardinaldirection][1]) + ' linked to ' + str(roomtolinkto))
+            #print(CardDir[cardinaldirection][1].name + ' linked to ' + roomtolinkto.name)
 
 class Room():
     def __init__(self, name, desc='A dimly lit room with nothing remarkable', shortdesc=None, enemies=None, allies=None, items=None, ammo=None, canexamine=None, North=None, East=None, South=None, West=None, firsttime=False):
@@ -461,6 +485,21 @@ class Room():
         self.canexamine = canexamine
         self.firsttime = firsttime
 
+        cardinals = [North, East, South, West]
+        for cardinal in cardinals:
+            if cardinal != None:
+                linker(cardinal, self)
+
+    def changelink(self, direction, new):
+        if direction == 'North':
+            self.North = new
+        elif direction == 'East':
+            self.East = new
+        elif direction == 'South':
+            self.South = new
+        else:
+            self.West = new
+  
     def get_items(self):
         if self.items == None:
             self.items = []
@@ -473,11 +512,9 @@ class Room():
                 return t3 + ', and ' + joined[-1].name
             else:
                 return joined[0].name
-
-
-
         else:
             return 'nothing'
+    
     def __repr__(self):
         return ', '.join([self.name, self.desc, str(self.enemies), str(self.items), str(self.North), str(self.East), str(self.South), str(self.West)])
 
@@ -1062,7 +1099,8 @@ def loading():
     #There has got to be a better way to do this.
     #coordinate based matrices is one option
     #a messenger method in the room class that was sent to A when B is called. This would create the doublelinked list 
-    startRoom.North = secondRoom
+    #startRoom.North = secondRoom
+    #A linker has been added, need to test, this can be removed (after testing), thank the gods
     secondRoom.West = lookout
     secondRoom.East = anteroom
     anteroom.North = merchantroom
