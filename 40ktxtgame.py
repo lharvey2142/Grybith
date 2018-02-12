@@ -1,6 +1,7 @@
 import sys
 import random
 import time
+import math
 #import tkinter as tk
 from itertools import groupby
 
@@ -233,7 +234,7 @@ RescueTree4 = DialogNode(primary=""" "You're back...but where..where is my son?"
 RescueTree5 = DialogNode(primary= """ "You found him! Thank the Emperor!" """, playerresponse=["""1. "It is always a pleasure to be of service." """, """2. "Yeah yeah, are you going to pay me or what?" """])
 RescueTree3 = DialogNode(primary='You finish off the heretic leader and quicky move towards the pedestal', playerresponse=['1. Free the young man and take him back to his father.', '2. He has been tainted by chaos and must be purged!'], children=['You are able to free the young man and free him from the circle, you carry him back through the heretic lair. The merchant has worked his way down to the bottom of the ramp.', "You raise your weapon and grant him the Emperor's peace. You trudge back through the heretic lair. The merchant is waiting for you at the bottom of the ramp."], nextnode=[RescueTree5, RescueTree4])
 RescueTree2 = DialogNode(playerresponse=[""" 1. "I'll see what I can do." """, """ 2. "I don't have time for this" """], children=[""" "Thank you, thank you so much!" """, """ "But..but.." You push the merchant roughly aside and continue onwards. """])
-RescueTree1 = DialogNode(primary='"Please, you look like someone who can fight, you must help me."', playerresponse=[""" 1. "What's wrong?" """, """ 2. "Get off me!" """], children=['"Its my son has been taken, please help me"', """ "I'm sorry, I'm sorry. But my son, hes been kidnapped." """], nextnode=[RescueTree2, RescueTree2])
+RescueTree1 = DialogNode(primary='"Please, you look like someone who can fight, you must help me."', playerresponse=[""" 1. "What's wrong?" """, """ 2. "Get off me!" """], children=['"Its my son has been taken, please help me"', """ "I'm sorry, I'm sorry. But my son, hes been taken." """], nextnode=[RescueTree2, RescueTree2])
 
 
 class Quest():
@@ -407,7 +408,7 @@ class Actor():
             print('You gain ' + str(self.xpreward) + ' experience!')
             if playerXP >= nextlevel:
                 level_up(player)
-                nextlevel+=100
+                nextlevel+=(100 + (nextlevel / 10))
         else:
             print('You have died!')
             exit()
@@ -445,29 +446,13 @@ def pickone(endnumber, listofoptions):
 
     
 
-#leaving commented out code for record of work for now
+
 def linker(roomtolink, roomtolinkto):
-    #not setting variable
-    # call a method within rooom
     CardDir = {'North' : [roomtolinkto.North, 'South'], 'East' : [roomtolinkto.East, 'West'], 'South' : [roomtolinkto.South, 'North'], 'West' : [roomtolinkto.West,'East']}
     cardinaldirections = ['North', 'East', 'South', 'West']
     for cardinaldirection in cardinaldirections: 
         if CardDir[cardinaldirection][0] != None:
-            print('Trying to link ' + roomtolink.name + ' to ' + roomtolinkto.name)
-
-
-            #roomtolink.North = roomtolinkto
-            #CardDir[cardinaldirection][1] = roomtolinkto
             roomtolink.changelink(CardDir[cardinaldirection][1], roomtolinkto)
-
-
-            #CardDir[cardinaldirection][1] = roomtolinkto
-            #roomtolink.North = roomtolinkto
-
-            #roomtolink.changelink(cardinaldirection, roomtolinkto)
-            #CardDir[cardinaldirection][0] = roomtolinkto
-            #print(str(CardDir[cardinaldirection][1]) + ' linked to ' + str(roomtolinkto))
-            #print(CardDir[cardinaldirection][1].name + ' linked to ' + roomtolinkto.name)
 
 class Room():
     def __init__(self, name, desc='A dimly lit room with nothing remarkable', shortdesc=None, enemies=None, allies=None, items=None, ammo=None, canexamine=None, North=None, East=None, South=None, West=None, firsttime=False):
@@ -529,7 +514,7 @@ def createalertstring(givenlist):
     if len(givenlist) > 1:
         genlist(givenlist)
     else:
-        print('a ' + givenlist[0].name)
+        print('a ' + givenlist[0].name + '\n')
 
 def createalliesstring(givenlist):
     print('There are people in the room')
@@ -537,7 +522,7 @@ def createalliesstring(givenlist):
     if len(givenlist) > 1:
         genlist(givenlist)
     else:
-        print('a ' + givenlist[0].name)
+        print('a ' + givenlist[0].name + '\n')
 
 
 def genlist(givenlist):
@@ -548,13 +533,14 @@ def genlist(givenlist):
         if len(x) != 1:
             l.append(str(len(x)) + ' ' + pluralDict[x[0]])
         else:
-            l.append(str(len(x)) + ' ' + x[0])
+            #l.append(str(len(x)) + ' ' + x[0]) Using this creates strings like "you see 1 man"
+            l.append('a' + ' ' + x[0]) #Using this creates strings like "you see a man" which is better, but the problem of "a" vs "an" is currently not solved. It would be doable though, just slice the first character off 
     l2 = ', '.join([item for item in l[:-1]])
 
     if len(l2) > 1:
-        print(l2 + ', and ' + l[-1])
+        print(l2 + ', and ' + l[-1] + '\n')
     else:
-        print(l[-1])
+        print(l[-1] + '\n')
 
 
 
@@ -642,6 +628,7 @@ def damage(attacker, target):
     if attacker.weapon.wrange == 1:
         d = (((d20 + (attacker.dexterity)/1.5) * attacker.weapon.damage) - target.armour.damageresist) / 1.5
 
+    d = math.floor(d)
     if d <= 0:
         if target == player:
             print('Your ' + target.armour.name + ' completely absorbs the blow!')
@@ -652,12 +639,14 @@ def damage(attacker, target):
         if target.name == 'you':
             print('You take ' + str(d) + ' damage!')
             printdelay()
-            print('You have ' + str(target.health) + ' health remaining!')
+            if target.health > 0:
+                print('You have ' + str(target.health) + ' health remaining!')
 
         else:
             print(target.name + ' takes ' + str(d) + ' damage!')
             printdelay()
-            print(target.name + ' has ' + str(target.health) + ' health remaining!')
+            if target.health > 0:
+                print(target.name + ' has ' + str(target.health) + ' health remaining!')
 
         if target.health <= 0:
             target.dies()
@@ -717,9 +706,10 @@ def playercombat(enemy_object):
             AIcombat(enemy, player)
             printdelay()
 
-#big gretchin didn't attack in the hallway, also passing function doesn't seem to work, also 'attack what', isn't working
+
 
 def interpreter(character, command):
+    #Here be dragons
     set_enemynames = []
     set_allynames = []
     #Lower is problemematic because of items with capital letters
@@ -771,6 +761,8 @@ def interpreter(character, command):
     elif command == "help":
         myhelp()
     elif set_listofwordsincommand.intersection({'description', 'desc'}):
+        createalertstring
+        createalliesstring
         print(character.location.desc)
 
     elif set_listofwordsincommand.intersection(set(attackverblist)):
@@ -865,11 +857,6 @@ def interpreter(character, command):
                     if item.name in ammoDict.keys():
                         ammoDict[item.name].take()
                         character.location.ammo.remove(item)
-
-
-
-
-
 
     elif set_listofwordsincommand.intersection(set(parsed_armoursinroom)):
         x = 0
@@ -1044,8 +1031,8 @@ lookout = Room('lookout', desc='in a room with a smashed row of windows lining o
 anteroom = Room('anteroom', desc='in a small anteroom. To the north a door is ajar; light and voices spill from the other side.', West=secondRoom)
 merchantroom = Room('merchantroom', desc='in a large rectangular room with high ceilings. A second story gallery once stretched along several of the walls, but it has collapsed. The rubble has been pushed into the corners to make room for several stalls. There are exits in every direction.', allies=[man, man, man, woman, merchant, desperate_merchant], canexamine=[merchantstall], South=anteroom)
 ramproom = Room('ramproom', desc='in  a room with a long ramp sloping down and to the west into the dark, there is a door at the end of it.', East=merchantroom)
-bloodyroom = Room('bloodyroom', desc='in a room with long blood stains down the sides of the walls, almost as if the ceiling was bleeding. There is a an archway to the south covered in a black cloth', items=[medpack, knife])
-sacrifcialchamber = Room('sacrifcialchamber', desc='in a large circular room with a pedestal in the middle. There is a door on the eastern wall', enemies=[heretic], canexamine=[pedestal])
+bloodyroom = Room('bloodyroom', desc='in a room with long blood stains down the sides of the walls, almost as if the ceiling was bleeding. There is a an archway to the south covered in a black cloth', items=[medpack, knife], East=ramproom)
+sacrifcialchamber = Room('sacrifcialchamber', desc='in a large circular room with a pedestal in the middle. There is a door on the eastern wall', enemies=[heretic], canexamine=[pedestal], North=bloodyroom)
 Hereticstorage = Room('Hereticstorage', desc='in a small room with a few boxes.', West=sacrifcialchamber, ammo=[autogunammocase])
 warren = Room('warren', desc='in a filthy warren of rooms that spread out in a nonsensical fashion. Some of the "walls" are nothing more than tarps. It takes you a moment to notice that some of piles you mistook for rags are actually people, they shy away from you, refusing to meet your eye, some scramble up meager possessions and flee. The maze continues down and to the east.', West=merchantroom)
 warren2 = Room('a continuation of the warrens', desc='in the wild tangle of rooms continues. More people, more makeshift homes, more hopelessness. You are somewhat turned around, but notice a wide corridor leading south. Somewhere to the west behind you, you know there is a way back towards the enterance.', West=warren)
@@ -1062,12 +1049,12 @@ npromw1 = Room('npromw1', desc='on a short wide walkway that opens onto a square
 promw2 = Room('promw2', desc='on a promonade that runs east to west, there is an observation deck to your north, but the massive windows are covered by blast doors.', East=promw1)
 promw3 = Room('promw3', desc='on a promonade that runs east to west, this section has a noticable curve along the contour of the hive. One section of the wall has collapsed into a heap of rubble.', canexamine=[roofcollapse], East=promw2)
 
-deadwomanRoom = Room('noblewoman house', desc='a fancy house with plates that gleam like a thousand moons. A stench hits you as you look around a table and see a woman on her back wearing an expensive gown for a noblewoman that used to be white, but now is soaked with her blood. You notice a deep knife wound that appears to have been her demise. Politics in the hives are always messy. Exits lie to the north and east.',West=secondRoom)
-gretchin_nest = Room('gretchin nest', desc='a dank room that smells as if something foul had been living there for some time. There are exits to the south and east.', enemies=[big_gretchin], West=deadwomanRoom)
-oldstoreroom = Room('storeroom', desc='a room filled with unopenable boxes. Something glints in the shadows in the corner of your eye as the light from the room behind you enters. There are no new exits', items=[knife], South=deadwomanRoom)
-guardroom = Room('guardroom1', desc='a disorganized room with a shivering man that does not respond to your calls. You see that he is wearing PDF uniform and realize he must have been here when the invasion happened. He is obviously insane and you decide to leave him alone. There are no new exits.', allies=[man], North=gretchin_nest)
-armory = Room('armory', desc='a wreck of a room where weapons lay broken and tossed around. Hopefully there is still something useful here. There is an open doorway to the north', enemies=[big_gretchin], South=bloodyroom)
-guards_quarters= Room('guards quaters', desc='a small room where beds lay in ruins and slime runs down the wall. There are exits to the north and west.', enemies=[big_gretchin, gretchin], South=armory)
+# deadwomanRoom = Room('noblewoman house', desc='a fancy house with plates that gleam like a thousand moons. A stench hits you as you look around a table and see a woman on her back wearing an expensive gown for a noblewoman that used to be white, but now is soaked with her blood. You notice a deep knife wound that appears to have been her demise. Politics in the hives are always messy. Exits lie to the north and east.',West=secondRoom)
+# gretchin_nest = Room('gretchin nest', desc='a dank room that smells as if something foul had been living there for some time. There are exits to the south and east.', enemies=[big_gretchin], West=deadwomanRoom)
+# oldstoreroom = Room('storeroom', desc='a room filled with unopenable boxes. Something glints in the shadows in the corner of your eye as the light from the room behind you enters. There are no new exits', items=[knife], South=deadwomanRoom)
+# guardroom = Room('guardroom1', desc='a disorganized room with a shivering man that does not respond to your calls. You see that he is wearing PDF uniform and realize he must have been here when the invasion happened. He is obviously insane and you decide to leave him alone. There are no new exits.', allies=[man], North=gretchin_nest)
+# armory = Room('armory', desc='a wreck of a room where weapons lay broken and tossed around. Hopefully there is still something useful here. There is an open doorway to the north', enemies=[big_gretchin], South=bloodyroom)
+# guards_quarters= Room('guards quaters', desc='a small room where beds lay in ruins and slime runs down the wall. There are exits to the north and west.', enemies=[big_gretchin, gretchin], South=armory)
 
 
 
@@ -1095,43 +1082,9 @@ def loading():
     playerXP = 0
     nextlevel = 50
     maxhealth = 100
-
-    #There has got to be a better way to do this.
-    #coordinate based matrices is one option
-    #a messenger method in the room class that was sent to A when B is called. This would create the doublelinked list 
-    #startRoom.North = secondRoom
-    #A linker has been added, need to test, this can be removed (after testing), thank the gods
-    secondRoom.West = lookout
-    secondRoom.East = anteroom
-    anteroom.North = merchantroom
-    deadwomanRoom.North = oldstoreroom
-    deadwomanRoom.East = gretchin_nest
-    gretchin_nest.East = bloodyroom
-    gretchin_nest.South = guardroom
-    armory.North = guards_quarters
-    prior_room = startRoom
     player.location = startRoom
-    anteroom.North = merchantroom
-    merchantroom.West = ramproom
-    ramproom.West = bloodyroom
-    bloodyroom.South = sacrifcialchamber
-    sacrifcialchamber.North = bloodyroom
-    bloodyroom.East = ramproom
-    sacrifcialchamber.West = Hereticstorage
-    merchantroom.East = warren
-    warren.East = warren2
-    warren2.South=warren3
-    warren3.South=warren4
-    warren4.West=security
-    security.South=landingpad
-    landingpad.South=ship
-    merchantroom.North=stairs
-    stairs.North = promonade
-    promonade.West = promw1
-    promw1.North = npromw1
-    promw1.West = promw2
-    promw2.West = promw3
 
+#This comment stands as a memorial to the godawful system used before the linker was implemented.
 
 
 def main_Control_Loop():
