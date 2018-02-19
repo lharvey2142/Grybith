@@ -73,6 +73,7 @@ class AutogunAmmo():
     def __init__(self, name, amount):
         self.name = name
         self.amount = amount
+        ammoDict.update({self.name: self})
 
     def take(self):
         global autogunammo
@@ -84,6 +85,7 @@ class Lasgunammo():
     def __init__(self, name, amount):
         self.name = name
         self.amount = amount
+        ammoDict.update({self.name: self})
 
     def take(self):
         global lasgunammo
@@ -95,6 +97,7 @@ class Bolterammo():
     def __init__(self, name, amount):
         self.name = name
         self.amount = amount
+        ammoDict.update({self.name: self})
 
     def take(self):
         global bolterammo
@@ -543,7 +546,7 @@ def genlist(givenlist):
         print(l[-1] + '\n')
 
 
-
+#This breaks DNR but I get why its tricky to fix. Need a function that returns a randon string from a list, but need to figure out which list to pass. Use ammotype flag on weapon? In a dictionary maybe?
 def createchargestring(name, weapon):
     options = ['The ' + name + ' roars and charges you', 'The ' + name + ' raises their ' + weapon + ' above their head and races towards you!']
     return(options[random.randrange(0, len(options))])
@@ -727,8 +730,11 @@ def interpreter(character, command):
     parsed_armoursinroom = []
     parsed_healingsinroom = []
     parsed_examinablesinroom = []
+    #this really all should be done on room enter. Very inefficient to do it everytime a command is given....OK, problem is that if it changes between commands and doens't get updated..property
+    #Is that possible?
     if character.location.items != None:
         temp = [x.name for x in character.location.items]
+        #Looking back at this...I don't know if it genius or insane.
         set_weaponsinroom = set(weaponsDict.keys()).intersection(set(temp))
         set_armoursinroom = set(armoursDict.keys()).intersection(set(temp))
         set_healingsinroom = set(healthitemsDict.keys()).intersection(set(temp))
@@ -893,6 +899,9 @@ def interpreter(character, command):
         if (character.location.enemies != None and character.location.enemies != []):
             print('You raise your weapon up and race towards your foes')
             character.charge()
+            for enemy in character.location.enemies:
+                AIcombat(enemy, character)
+                printdelay()
         else:
             print('There is nothing to charge!')
 
@@ -1068,10 +1077,9 @@ def loading():
     global playerXP
     global maxhealth
     global autogunammo
-    ammoDict.update({'a case of autogun ammunition': autogunammocase})
-    ammoDict.update({'several lasgun packs': lasgunammocase})
     ammotypeDict.update({'autogun': autogunammo})
     ammotypeDict.update({'lasgun': lasgunammo})
+    ammotypeDict.update({'bolter': bolterammo})
     pluralDict.update({'man': 'men'})
     pluralDict.update({'woman': 'women'})
     pluralDict.update({'heretic': 'heretics'})
@@ -1083,6 +1091,7 @@ def loading():
     nextlevel = 50
     maxhealth = 100
     player.location = startRoom
+    stairs.West = None
 
 #This comment stands as a memorial to the godawful system used before the linker was implemented.
 
